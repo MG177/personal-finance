@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "expense_types",
+  "info": {
+    "singularName": "expense-type",
+    "pluralName": "expense-types",
+    "displayName": "Expense Type"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Monthly_Budget": {
+      "type": "integer"
+    },
+    "expenses": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::expanse.expanse",
+      "mappedBy": "expense_type"
+    }
+  }
+}

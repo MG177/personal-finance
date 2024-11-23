@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "incomes",
+  "info": {
+    "singularName": "income",
+    "pluralName": "incomes",
+    "displayName": "Income"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "required": true
+    },
+    "Nominal": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "Date": {
+      "type": "date",
+      "required": true
+    },
+    "Photo": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": true
+    },
+    "Note": {
+      "type": "text"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "incomes"
+    },
+    "income_type": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::income-type.income-type",
+      "inversedBy": "incomes"
+    }
+  }
+}
