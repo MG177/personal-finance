@@ -21,7 +21,10 @@ import {
   IonSelectOption,
   IonSegment,
   IonSegmentButton,
-  useIonToast
+  IonFab,
+  IonFabButton,
+  useIonToast,
+  IonAlert
 } from '@ionic/react';
 import { 
   walletOutline, 
@@ -30,7 +33,11 @@ import {
   arrowUpCircleOutline,
   arrowDownCircleOutline,
   imageOutline,
-  filterOutline
+  filterOutline,
+  addOutline,
+  createOutline,
+  trashOutline,
+  ellipsisVertical
 } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useHistory } from 'react-router-dom';
@@ -47,6 +54,10 @@ const Dashboard = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [present] = useIonToast();
+  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -62,7 +73,7 @@ const Dashboard = () => {
           page: 1,
           pageSize: 100,
         },
-        sort: ['Date:desc'],
+        sort: ['updatedAt:desc'],
       };
 
       // Add search filter only if search text exists
@@ -250,6 +261,41 @@ const Dashboard = () => {
     return type === 'expense' ? 'expense-amount' : 'income-amount';
   };
 
+  const handleEdit = (transaction) => {
+    history.push(`/edit-transaction/${transaction.type}/${transaction.documentId}`);
+  };
+
+  const handleDeleteClick = (transaction) => {
+    setTransactionToDelete(transaction);
+    setShowDeleteAlert(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!transactionToDelete) return;
+
+    try {
+      const endpoint = transactionToDelete.type === 'expense' ? '/expanses' : '/incomes';
+      await strapiAPI.delete(`${endpoint}/${transactionToDelete.id}`);
+      
+      setTransactions(prev => prev.filter(t => t.id !== transactionToDelete.id));
+      present({
+        message: 'Transaction deleted successfully',
+        duration: 3000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      present({
+        message: 'Failed to delete transaction',
+        duration: 3000,
+        color: 'danger'
+      });
+    } finally {
+      setShowDeleteAlert(false);
+      setTransactionToDelete(null);
+    }
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -325,12 +371,28 @@ const Dashboard = () => {
                       <div className="transaction-photo">
                         {transaction.photoUrl ? (
                           <img 
-                            src={`http://localhost:1337${transaction.photoUrl}`} 
+                            src={`${process.env.REACT_APP_STRAPI_URL}${transaction.photoUrl}`} 
                             alt={transaction.Title}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              const parent = e.target.parentElement;
+                              const placeholder = document.createElement('div');
+                              placeholder.className = 'photo-placeholder';
+                              placeholder.innerHTML = `
+                                <div class="placeholder-content">
+                                  <span>No Image</span>
+                                </div>
+                              `;
+                              parent.appendChild(placeholder);
+                            }}
                           />
                         ) : (
                           <div className="photo-placeholder">
-                            <IonIcon icon={imageOutline} />
+                            <div className="placeholder-content">
+                              
+                              <span>No Image</span>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -362,6 +424,22 @@ const Dashboard = () => {
                           </p>
                         )}
                       </IonLabel>
+                      <div className="transaction-actions">
+                        <IonButton
+                          fill="clear"
+                          color="primary"
+                          onClick={() => handleEdit(transaction)}
+                        >
+                          <IonIcon slot="icon-only" icon={createOutline} />
+                        </IonButton>
+                        <IonButton
+                          fill="clear"
+                          color="danger"
+                          onClick={() => handleDeleteClick(transaction)}
+                        >
+                          <IonIcon slot="icon-only" icon={trashOutline} />
+                        </IonButton>
+                      </div>
                     </IonItem>
                   ))}
                 </IonList>
@@ -369,6 +447,35 @@ const Dashboard = () => {
             </IonCardContent>
           </IonCard>
         </div>
+
+        {/* Floating Action Button */}
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton routerLink="/create-transaction">
+            <IonIcon icon={addOutline} />
+          </IonFabButton>
+        </IonFab>
+
+        <IonAlert
+          isOpen={showDeleteAlert}
+          onDidDismiss={() => {
+            setShowDeleteAlert(false);
+            setTransactionToDelete(null);
+          }}
+          header="Confirm Delete"
+          message={`Are you sure you want to delete this ${transactionToDelete?.type || 'transaction'}?`}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary'
+            },
+            {
+              text: 'Delete',
+              role: 'destructive',
+              handler: handleDeleteConfirm
+            }
+          ]}
+        />
       </IonContent>
     </IonPage>
   );

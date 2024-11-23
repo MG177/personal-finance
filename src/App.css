@@ -86,6 +86,53 @@
   opacity: 1;
 }
 
+.form-group select.custom-select,
+.form-group textarea.custom-textarea,
+.form-group .date-input {
+  width: 100%;
+  padding: 16px 20px;
+  margin: 0;
+  display: block;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: #333333;
+  transition: all 0.2s ease;
+}
+
+.form-group select.custom-select:focus,
+.form-group textarea.custom-textarea:focus,
+.form-group .date-input:focus {
+  outline: none;
+  border-color: var(--ion-color-primary);
+  box-shadow: 0 0 0 4px rgba(56, 128, 255, 0.1);
+}
+
+.form-group select.custom-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+.form-group textarea.custom-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group .date-input {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --placeholder-color: #bdbdbd;
+  --background: #ffffff;
+}
+
 ion-card {
   max-width: 500px;
   margin: 2rem auto;
@@ -251,35 +298,125 @@ ion-item ion-icon {
 .transaction-item {
   --padding-start: 0;
   --inner-padding-end: 16px;
+  --padding-end: 8px;
+  border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
 }
 
+.transaction-item ion-label {
+  margin: 10px 0;
+}
+
+.transaction-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.transaction-actions ion-button {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  height: 36px;
+}
+
+.transaction-actions ion-button::part(native) {
+  padding: 0;
+}
+
+.transaction-actions ion-icon {
+  font-size: 18px;
+}
+
+.expense-icon {
+  color: var(--ion-color-danger);
+}
+
+.income-icon {
+  color: var(--ion-color-success);
+}
+
+/* Transaction Photo Styles */
 .transaction-photo {
   width: 80px;
   height: 80px;
+  min-width: 80px;
   margin: 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  flex-shrink: 0;
+  background-color: var(--ion-color-light);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .transaction-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.transaction-photo img:hover {
+  transform: scale(1.05);
 }
 
 .photo-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #f5f6fa;
+  background: linear-gradient(45deg, var(--ion-color-light) 0%, var(--ion-color-light-shade) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.photo-placeholder ion-icon {
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--ion-color-medium);
+}
+
+.placeholder-content ion-icon {
   font-size: 24px;
-  color: #bdc3c7;
+}
+
+.placeholder-content span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .transaction-photo {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    margin: 8px;
+  }
+
+  .placeholder-content ion-icon {
+    font-size: 20px;
+  }
+
+  .placeholder-content span {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 768px) {
+  .transaction-photo {
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+    margin: 16px;
+  }
+
+  .placeholder-content ion-icon {
+    font-size: 32px;
+  }
+
+  .placeholder-content span {
+    font-size: 11px;
+  }
 }
 
 /* Search and Filter Styles */
@@ -362,4 +499,201 @@ ion-item ion-icon {
 /* Page background */
 ion-content {
   --background: #f8f9fa;
+}
+
+/* Create Transaction Form Styles */
+.create-transaction-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.transaction-type-segment {
+  margin-bottom: 24px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+.create-transaction-form ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 16px;
+  --background: transparent;
+}
+
+.create-transaction-form ion-item.item-has-value {
+  --highlight-background: var(--ion-color-primary);
+}
+
+.create-transaction-form ion-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.create-transaction-form ion-input,
+.create-transaction-form ion-textarea,
+.create-transaction-form ion-select,
+.create-transaction-form ion-datetime {
+  --background: #ffffff;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-light);
+}
+
+.create-transaction-form ion-input:focus,
+.create-transaction-form ion-textarea:focus,
+.create-transaction-form ion-select:focus,
+.create-transaction-form ion-datetime:focus {
+  border-color: var(--ion-color-primary);
+}
+
+/* Required field indicator */
+.create-transaction-form ion-label[position="stacked"]:after {
+  content: "*";
+  color: var(--ion-color-danger);
+  margin-left: 4px;
+}
+
+/* Hide required indicator for optional fields */
+.create-transaction-form ion-item:has(> ion-textarea) ion-label[position="stacked"]:after {
+  content: none;
+}
+
+@media (max-width: 768px) {
+  .create-transaction-form {
+    padding: 16px 12px;
+  }
+}
+
+.transaction-type-segment {
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+.transaction-type-segment ion-segment-button {
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-primary);
+  --indicator-color: var(--ion-color-primary);
+  min-height: 44px;
+}
+
+.create-transaction-form {
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .create-transaction-form {
+    padding: 0.5rem;
+  }
+  
+  .form-group select.custom-select,
+  .form-group textarea.custom-textarea,
+  .form-group .date-input,
+  .form-group input {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+}
+
+/* Photo Upload Styles */
+.photo-upload-container {
+  margin-bottom: 20px;
+}
+
+.photo-upload-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+}
+
+.photo-upload-content {
+  border: 2px dashed var(--ion-color-medium);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-content:hover {
+  border-color: var(--ion-color-primary);
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.photo-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--ion-color-medium);
+  border: 2px dashed var(--ion-color-medium);
+  border-radius: 8px;
+  padding: 16px;
+  height: 120px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-placeholder:hover {
+  border-color: var(--ion-color-primary);
+  color: var(--ion-color-primary);
+}
+
+.photo-upload-placeholder ion-icon {
+  font-size: 32px;
+}
+
+.photo-preview {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--ion-color-danger);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.photo-preview:hover .remove-photo-btn {
+  opacity: 1;
+}
+
+.remove-photo-btn ion-icon {
+  color: white;
+  font-size: 20px;
 }

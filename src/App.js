@@ -40,6 +40,8 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import CreateTransaction from './pages/CreateTransaction';
+import EditTransaction from './pages/EditTransaction';
 
 setupIonicReact();
 
@@ -69,6 +71,8 @@ function App() {
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
+            <PrivateRoute exact path="/create-transaction" component={CreateTransaction} />
+            <PrivateRoute exact path="/edit-transaction/:type/:id" component={EditTransaction} />
             <Route exact path="/">
               <Redirect to="/dashboard" />
             </Route>
