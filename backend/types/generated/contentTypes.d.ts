@@ -547,7 +547,7 @@ export interface ApiTransactionTransaction extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     date: Schema.Attribute.Date;
-    description: Schema.Attribute.RichText;
+    description: Schema.Attribute.Blocks;
     image: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true

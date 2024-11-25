@@ -116,9 +116,9 @@ const CreateTransaction = () => {
 
       // Create transaction with image relations
       const transactionData = {
-        title: title,
+        title,
+        description: description?.content || null,
         amount: parseFloat(amount),
-        description: description,
         transaction_type: transactionType,
         bank_account: selectedBankAccount,
         date: date,
@@ -153,6 +153,10 @@ const CreateTransaction = () => {
     }
   };
 
+  const handleDescriptionChange = (value) => {
+    setDescription(value);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -184,7 +188,7 @@ const CreateTransaction = () => {
               onTransactionTypeChange={setTransactionType}
               onTitleChange={setTitle}
               onAmountChange={setAmount}
-              onDescriptionChange={setDescription}
+              onDescriptionChange={handleDescriptionChange}
               onBankAccountChange={setSelectedBankAccount}
               onFileSelect={(files) => setSelectedFiles(prevFiles => [...prevFiles, ...files])}
               onFileRemove={(index) => {

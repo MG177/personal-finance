@@ -44,8 +44,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useHistory } from 'react-router-dom';
 import strapiAPI from '../api/strapi';
 import qs from 'qs';
-import ReactMarkdown from 'react-markdown';
 import '../App.css';
+import { BlocksRenderer } from '@strapi/blocks-react-renderer';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -412,8 +412,10 @@ const Dashboard = () => {
                                 <span>Note: </span>
                                 <IonIcon icon={chevronDownOutline} />
                               </div>
-                              <div className={`transaction-description ${!expandedDescriptions[transaction.id] ? 'hidden' : ''}`}>
-                                <ReactMarkdown>{transaction.description}</ReactMarkdown>
+                              <div 
+                                className={`transaction-description ${!expandedDescriptions[transaction.id] ? 'hidden' : ''}`}
+                              >
+                                <BlocksRenderer content={transaction.description} />
                               </div>
                             </>
                           )}

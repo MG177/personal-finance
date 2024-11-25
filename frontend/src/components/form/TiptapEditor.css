@@ -1,0 +1,84 @@
+.tiptap-editor {
+  border: 1px solid var(--ion-border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editor-menu-bar {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--ion-border-color);
+  background: var(--ion-color-light);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.editor-menu-bar button {
+  border: none;
+  background: var(--ion-color-light);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--ion-color-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor-menu-bar button:hover {
+  background: var(--ion-color-light-shade);
+  color: var(--ion-color-dark);
+}
+
+.editor-menu-bar button.is-active {
+  background: var(--ion-color-primary);
+  color: white;
+}
+
+.ProseMirror {
+  padding: 1rem;
+  min-height: 150px;
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: 600;
+  margin: 0.5em 0;
+  color: var(--ion-color-dark);
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0.5em 0;
+  color: var(--ion-color-dark);
+}
+
+.ProseMirror h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 0.5em 0;
+  color: var(--ion-color-dark);
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.ProseMirror li {
+  margin: 0.2em 0;
+}
+
+.ProseMirror p.is-empty::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

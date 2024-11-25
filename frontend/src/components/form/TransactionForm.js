@@ -1,5 +1,6 @@
 import React from 'react';
 import { IonButton, IonDatetime, IonModal, IonDatetimeButton } from '@ionic/react';
+import TiptapEditor from './TiptapEditor';
 import TransactionTypeSelect from './TransactionTypeSelect';
 import BankAccountSelect from './BankAccountSelect';
 import TextInput from './TextInput';
@@ -7,7 +8,6 @@ import CurrencyInput from './CurrencyInput';
 import FileUpload from './FileUpload';
 
 const TransactionForm = ({
-  // Form values
   transactionType,
   title,
   amount,
@@ -18,8 +18,6 @@ const TransactionForm = ({
   bankAccounts,
   loading,
   date,
-  
-  // Event handlers
   onSubmit,
   onTransactionTypeChange,
   onTitleChange,
@@ -30,10 +28,16 @@ const TransactionForm = ({
   onFileRemove,
   onExistingFileRemove,
   onDateChange,
-  
-  // Button text
-  submitButtonText
+  submitButtonText,
 }) => {
+  const handleDescriptionChange = (newContent) => {
+    onDescriptionChange(newContent);
+  };
+
+  const getCurrentDescription = () => {
+    return description || [];
+  };
+
   return (
     <form onSubmit={onSubmit} className="form-container">
       <div className="form-container">
@@ -116,13 +120,13 @@ const TransactionForm = ({
         </div>
 
         {/* Description */}
-        <TextInput
-          id="description"
-          label="Description"
-          value={description}
-          onChange={onDescriptionChange}
-          multiline
-        />
+        <div className="form-group">
+          <label>Description</label>
+          <TiptapEditor 
+            content={getCurrentDescription()}
+            onChange={handleDescriptionChange}
+          />
+        </div>
 
         {/* File Upload */}
         <FileUpload

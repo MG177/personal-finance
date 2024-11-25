@@ -44,7 +44,7 @@ const EditTransaction = () => {
         const transaction = response.data.data;
         
         setTitle(transaction.title);
-        setDescription(transaction.description || '');
+        setDescription(transaction.description || []);
         setAmount(transaction.amount.toString());
         setTransactionType(transaction.transaction_type);
         setSelectedBankAccount(transaction.bank_account?.id || '');
@@ -174,7 +174,7 @@ const EditTransaction = () => {
       // Prepare transaction data
       const transactionData = {
         title,
-        description,
+        description: description.content || null,
         amount: parseFloat(amount),
         transaction_type: transactionType,
         bank_account: selectedBankAccount,
@@ -209,6 +209,10 @@ const EditTransaction = () => {
     }
   };
 
+  const handleDescriptionChange = (value) => {
+    setDescription(value);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -241,7 +245,7 @@ const EditTransaction = () => {
               onTransactionTypeChange={setTransactionType}
               onTitleChange={setTitle}
               onAmountChange={setAmount}
-              onDescriptionChange={setDescription}
+              onDescriptionChange={handleDescriptionChange}
               onBankAccountChange={setSelectedBankAccount}
               onFileSelect={(files) => setSelectedFiles(prevFiles => [...prevFiles, ...files])}
               onFileRemove={(index) => {

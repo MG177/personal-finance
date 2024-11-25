@@ -32,9 +32,6 @@
         "audios"
       ]
     },
-    "description": {
-      "type": "richtext"
-    },
     "transaction_type": {
       "type": "enumeration",
       "enum": [
@@ -59,6 +56,9 @@
       "relation": "manyToOne",
       "target": "api::category.category",
       "inversedBy": "transactions"
+    },
+    "description": {
+      "type": "blocks"
     }
   }
 }
