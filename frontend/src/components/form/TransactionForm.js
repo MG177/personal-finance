@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonButton } from '@ionic/react';
+import { IonButton, IonDatetime, IonModal, IonDatetimeButton } from '@ionic/react';
 import TransactionTypeSelect from './TransactionTypeSelect';
 import BankAccountSelect from './BankAccountSelect';
 import TextInput from './TextInput';
@@ -17,6 +17,7 @@ const TransactionForm = ({
   existingFiles,
   bankAccounts,
   loading,
+  date,
   
   // Event handlers
   onSubmit,
@@ -28,11 +29,11 @@ const TransactionForm = ({
   onFileSelect,
   onFileRemove,
   onExistingFileRemove,
+  onDateChange,
   
   // Button text
   submitButtonText
 }) => {
-  
   return (
     <form onSubmit={onSubmit} className="form-container">
       <div className="form-container">
@@ -66,6 +67,53 @@ const TransactionForm = ({
           onChange={onAmountChange}
           required
         />
+
+        {/* Date */}
+        <div className="form-group">
+          <div style={{ display: 'none' }}>
+            <IonDatetimeButton 
+              datetime="transaction-date" 
+              className="custom-datetime-button"
+              id="hidden-datetime-btn"
+            />
+          </div>
+          <button
+            type="button"
+            className="custom-date-trigger"
+            onClick={() => {
+              const hiddenBtn = document.querySelector('#hidden-datetime-btn');
+              hiddenBtn?.shadowRoot?.querySelector('button')?.click();
+            }}
+          >
+            {date ? new Date(date).toLocaleDateString('id-ID', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }) : 'Select Date'}
+          </button>
+          <IonModal keepContentsMounted={true}>
+            <IonDatetime 
+              id="transaction-date"
+              value={date}
+              onIonChange={e => onDateChange(e.detail.value)}
+              presentation="date"
+              showDefaultButtons={true}
+              firstDayOfWeek={1}
+              className="custom-datetime"
+              locale="id-ID"
+              formatOptions={{
+                date: {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                }
+              }}
+            />
+          </IonModal>
+          <label htmlFor="transaction-date">Date</label>
+        </div>
 
         {/* Description */}
         <TextInput

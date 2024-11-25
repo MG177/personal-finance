@@ -3,9 +3,7 @@ import { IonIcon } from '@ionic/react';
 import { closeCircle, camera } from 'ionicons/icons';
 
 const FileUpload = ({ files, onFileSelect, onFileRemove, existingFiles = [], onExistingFileRemove }) => {
-  const fileInputRef = useRef(null);
-  console.log(files);
-  
+  const fileInputRef = useRef(null);  
   
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);

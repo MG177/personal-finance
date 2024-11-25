@@ -30,6 +30,7 @@ const EditTransaction = () => {
   const [existingImages, setExistingImages] = useState([]);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString());
 
   // Load transaction data
   useEffect(() => {
@@ -47,6 +48,7 @@ const EditTransaction = () => {
         setAmount(transaction.amount.toString());
         setTransactionType(transaction.transaction_type);
         setSelectedBankAccount(transaction.bank_account?.id || '');
+        setDate(transaction.date || new Date().toISOString());
 
         // Handle existing images
         if (transaction.image) {
@@ -176,6 +178,7 @@ const EditTransaction = () => {
         amount: parseFloat(amount),
         transaction_type: transactionType,
         bank_account: selectedBankAccount,
+        date: date,
         image: [...existingImageIds, ...fileIds]
       };
 
@@ -231,6 +234,7 @@ const EditTransaction = () => {
               existingFiles={existingImages}
               bankAccounts={bankAccounts}
               loading={loading}
+              date={date}
               
               // Event handlers
               onSubmit={handleSubmit}
@@ -244,6 +248,7 @@ const EditTransaction = () => {
                 setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
               }}
               onExistingFileRemove={handleRemoveExistingImage}
+              onDateChange={setDate}
               
               // Button text
               submitButtonText="Update Transaction"

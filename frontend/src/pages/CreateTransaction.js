@@ -28,6 +28,7 @@ const CreateTransaction = () => {
   const [selectedBankAccount, setSelectedBankAccount] = useState('');
   const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [date, setDate] = useState(new Date().toISOString());
 
   // Load bank accounts
   useEffect(() => {
@@ -120,6 +121,7 @@ const CreateTransaction = () => {
         description: description,
         transaction_type: transactionType,
         bank_account: selectedBankAccount,
+        date: date,
         ...(fileIds.length > 0 && {
           image: fileIds
         })
@@ -175,6 +177,7 @@ const CreateTransaction = () => {
               selectedFiles={selectedFiles}
               bankAccounts={bankAccounts}
               loading={loading}
+              date={date}
               
               // Event handlers
               onSubmit={handleSubmit}
@@ -187,6 +190,7 @@ const CreateTransaction = () => {
               onFileRemove={(index) => {
                 setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
               }}
+              onDateChange={setDate}
               
               // Button text
               submitButtonText="Create Transaction"
