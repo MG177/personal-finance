@@ -38,103 +38,214 @@
 }
 
 /* Form Styles */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .form-group {
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: var(--ion-item-background);
+  color: var(--ion-text-color);
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--ion-color-primary);
 }
 
 .form-group label {
   position: absolute;
-  left: 12px;
-  top: -10px;
-  background-color: white;
-  padding: 0 4px;
+  top: -12px;
+  left: 10px;
+  padding: 0 6px;
+  background-color: var(--ion-background-color);
+  color: var(--ion-color-medium);
   font-size: 14px;
-  color: #666666;
-  font-weight: 500;
-  z-index: 1;
-  transition: all 0.2s ease;
 }
 
-.form-group input {
-  width: 100%;
-  padding: 16px 20px;
-  margin: 0;
-  display: block;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 16px;
-  background-color: #ffffff;
-  color: #333333;
-  transition: all 0.2s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--ion-color-primary);
-  box-shadow: 0 0 0 4px rgba(56, 128, 255, 0.1);
-}
-
-.form-group input:focus + label {
-  color: var(--ion-color-primary);
-  font-weight: 600;
-}
-
-.form-group input::placeholder {
-  color: #bdbdbd;
-  opacity: 1;
-}
-
-.form-group select.custom-select,
-.form-group textarea.custom-textarea,
-.form-group .date-input {
-  width: 100%;
-  padding: 16px 20px;
-  margin: 0;
-  display: block;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  box-sizing: border-box;
-  font-size: 16px;
-  background-color: #ffffff;
-  color: #333333;
-  transition: all 0.2s ease;
-}
-
-.form-group select.custom-select:focus,
-.form-group textarea.custom-textarea:focus,
-.form-group .date-input:focus {
-  outline: none;
-  border-color: var(--ion-color-primary);
-  box-shadow: 0 0 0 4px rgba(56, 128, 255, 0.1);
-}
-
-.form-group select.custom-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
-}
-
-.form-group textarea.custom-textarea {
+.form-group textarea {
   min-height: 100px;
   resize: vertical;
 }
 
-.form-group .date-input {
-  --padding-start: 20px;
-  --padding-end: 20px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --placeholder-color: #bdbdbd;
-  --background: #ffffff;
+/* Form Frame Styles */
+.form-container {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-frame {
+  background-color: var(--ion-item-background);
+  border: 2px solid var(--ion-border-color);
+  border-radius: 8px;
+  padding: 24px;
+  padding-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  color: var(--ion-text-color);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+/* Custom Select Styles */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+}
+
+/* React Select Styles */
+.react-select-container {
+  width: 100%;
+}
+
+.react-select__control {
+  border-radius: 8px !important;
+  border: 2px solid #e0e0e0 !important;
+  min-height: 46px !important;
+  box-shadow: none !important;
+  background-color: var(--ion-item-background) !important;
+}
+
+.react-select__control--is-focused {
+  border-color: var(--ion-color-primary) !important;
+  box-shadow: none !important;
+}
+
+.react-select__value-container {
+  padding: 2px 16px !important;
+}
+
+.react-select__single-value {
+  color: var(--ion-text-color) !important;
+}
+
+.react-select__indicator-separator {
+  display: none !important;
+}
+
+.react-select__indicator {
+  padding: 0 12px !important;
+  color: var(--ion-color-medium) !important;
+}
+
+.react-select__menu {
+  background-color: var(--ion-item-background) !important;
+  border: 2px solid var(--ion-border-color) !important;
+  border-radius: 8px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  z-index: 100 !important;
+}
+
+.react-select__option {
+  padding: 10px 16px !important;
+  cursor: pointer !important;
+  color: var(--ion-text-color) !important;
+}
+
+.react-select__option--is-focused {
+  background-color: var(--ion-color-light) !important;
+}
+
+.react-select__option--is-selected {
+  background-color: var(--ion-color-primary) !important;
+  color: white !important;
+}
+
+/* File Upload Styles */
+.file-upload-section {
+  margin-bottom: 24px;
+}
+
+.selected-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.selected-file {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--ion-border-color);
+}
+
+.selected-file img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-file-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+  margin: 0;
+  --border-radius: 50%;
+  --background: rgba(0, 0, 0, 0.5);
+  --color: white;
+}
+
+.remove-file-btn:hover {
+  --background: rgba(0, 0, 0, 0.7);
+}
+
+/* Submit Button Styles */
+.form-container ion-button[type="submit"] {
+  margin-top: 32px;
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    border-color: var(--ion-border-color);
+  }
+  
+  .react-select__control {
+    border-color: var(--ion-border-color) !important;
+  }
+  
+  .react-select__option--is-focused {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.1) !important;
+  }
 }
 
 ion-card {
-  max-width: 500px;
   margin: 2rem auto;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -297,19 +408,19 @@ ion-item ion-icon {
 
 .transaction-item {
   --padding-start: 0;
-  --inner-padding-end: 16px;
-  --padding-end: 8px;
-  border-bottom: 1px solid rgba(var(--ion-color-medium-rgb), 0.1);
+  --inner-padding-end: 0;
+  align-items: flex-start !important;
+  padding: 16px;
 }
 
 .transaction-item ion-label {
-  margin: 10px 0;
+  margin: 0;
 }
 
 .transaction-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }
 
 .transaction-actions ion-button {
@@ -339,7 +450,9 @@ ion-item ion-icon {
   width: 80px;
   height: 80px;
   min-width: 80px;
+  min-height: 80px;
   margin: 12px;
+  margin-top: 0px;
   border-radius: 12px;
   overflow: hidden;
   background-color: var(--ion-color-light);
@@ -391,6 +504,7 @@ ion-item ion-icon {
     height: 60px;
     min-width: 60px;
     margin: 8px;
+    margin-top: 0px;
   }
 
   .placeholder-content ion-icon {
@@ -408,6 +522,7 @@ ion-item ion-icon {
     height: 100px;
     min-width: 100px;
     margin: 16px;
+    margin-top: 0px;
   }
 
   .placeholder-content ion-icon {
@@ -421,7 +536,7 @@ ion-item ion-icon {
 
 /* Search and Filter Styles */
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 16px;
 }
@@ -436,25 +551,30 @@ ion-item ion-icon {
 
 .search-box {
   margin-bottom: 16px;
+  
 }
 
 .custom-searchbar {
   --background: #ffffff;
   --border-radius: 8px;
-  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --box-shadow: none;
   --placeholder-color: var(--ion-color-medium);
   --icon-color: var(--ion-color-medium);
   margin: 0;
+  padding: 0;
+  height: 42px;
 }
 
 .filter-section {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 30%;
+  gap: 1rem;
 }
 
 .custom-segment {
   flex: 1;
+  grid-column: span 2;
+
   min-width: 200px;
   background: #ffffff;
   border-radius: 8px;
@@ -520,10 +640,6 @@ ion-content {
   --inner-padding-end: 0;
   margin-bottom: 16px;
   --background: transparent;
-}
-
-.create-transaction-form ion-item.item-has-value {
-  --highlight-background: var(--ion-color-primary);
 }
 
 .create-transaction-form ion-label {
@@ -602,12 +718,12 @@ ion-content {
 
 /* Photo Upload Styles */
 .photo-upload-container {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .photo-upload-label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: var(--ion-color-medium);
   font-size: 14px;
 }
@@ -627,9 +743,23 @@ ion-content {
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.photo-preview {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--ion-border-color);
+  background-color: var(--ion-item-background);
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .photo-upload-placeholder {
@@ -637,45 +767,36 @@ ion-content {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: var(--ion-color-medium);
-  border: 2px dashed var(--ion-color-medium);
+  aspect-ratio: 1;
+  border: 2px dashed var(--ion-border-color);
   border-radius: 8px;
-  padding: 16px;
-  height: 120px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  background-color: var(--ion-item-background);
+  transition: all 0.2s ease;
 }
 
 .photo-upload-placeholder:hover {
   border-color: var(--ion-color-primary);
-  color: var(--ion-color-primary);
+  background-color: rgba(var(--ion-color-primary-rgb), 0.1);
 }
 
 .photo-upload-placeholder ion-icon {
-  font-size: 32px;
+  font-size: 24px;
+  color: var(--ion-color-medium);
+  margin-bottom: 4px;
 }
 
-.photo-preview {
-  position: relative;
-  width: 100%;
-  height: 120px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.photo-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
+.photo-upload-placeholder span {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  text-align: center;
 }
 
 .remove-photo-btn {
   position: absolute;
   top: 4px;
   right: 4px;
-  background: var(--ion-color-danger);
+  background: rgba(0, 0, 0, 0.5);
   border: none;
   border-radius: 50%;
   width: 24px;
@@ -685,15 +806,303 @@ ion-content {
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
-.photo-preview:hover .remove-photo-btn {
-  opacity: 1;
+.remove-photo-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 .remove-photo-btn ion-icon {
   color: white;
-  font-size: 20px;
+  font-size: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .photo-upload-placeholder {
+    border-color: var(--ion-border-color);
+    background-color: rgba(var(--ion-color-light-rgb), 0.1);
+  }
+  
+  .photo-upload-placeholder:hover {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+  }
+  
+  .photo-preview {
+    border-color: var(--ion-border-color);
+  }
+}
+
+.transaction-description {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.transaction-description.hidden {
+  max-height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.description-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.description-toggle:hover {
+  background-color: #f1f3f5;
+}
+
+.dark .description-toggle:hover {
+  background-color: #2d2d2d;
+}
+
+.description-toggle ion-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s;
+}
+
+.description-toggle.expanded ion-icon {
+  transform: rotate(180deg);
+}
+
+.dark .description-toggle {
+  color: #adb5bd;
+}
+
+.transaction-description p {
+  margin: 0;
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.transaction-description ul, 
+.transaction-description ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.transaction-description code {
+  background-color: #e9ecef;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.dark .transaction-description {
+  background-color: #2d2d2d;
+  border-color: #404040;
+}
+
+.dark .transaction-description p {
+  color: #e9ecef;
+}
+
+.dark .transaction-description code {
+  background-color: #404040;
+  color: #e9ecef;
+}
+
+.transaction-content {
+  display: flex;
+  width: 100%;
+  position: relative;
+  gap: 16px;
+}
+
+.transaction-photo {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.transaction-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #adb5bd;
+}
+
+.photo-placeholder ion-icon {
+  font-size: 24px;
+}
+
+.dark .photo-placeholder {
+  background-color: #2d2d2d;
+  color: #6c757d;
+}
+
+.transaction-item ion-label {
+  flex: 1;
+  /* margin-right: 60px; */
+}
+
+.bank-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.bank-option img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.bank-option span {
+  flex: 1;
+}
+
+/* Style for the select element to match the option height */
+select.custom-select {
+  padding: 8px;
+}
+
+/* Custom select wrapper to show selected option with icon */
+.bank-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.bank-select-wrapper::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: var(--selected-icon);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+}
+
+.bank-select-wrapper select.custom-select {
+  padding-left: 36px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 32px;
+}
+
+.bank-select-wrapper select.custom-select option {
+  padding: 8px 8px 8px 36px;
+  background-repeat: no-repeat;
+  background-position: 8px center;
+  background-size: 20px;
+}
+
+/* React Select Styles */
+.react-select-container {
+  width: 100%;
+}
+
+.react-select__control {
+  border-radius: 8px !important;
+  border: 2px solid #e0e0e0 !important;
+  overflow: hidden;
+  transition: all 0.2s ease !important;
+}
+
+.react-select__control--is-focused {
+  border-color: var(--ion-color-primary) !important;
+  box-shadow: 0 0 0 1px var(--ion-color-primary) !important;
+}
+
+.react-select__indicator-separator {
+  background-color: var(--ion-border-color) !important;
+}
+
+.react-select__dropdown-indicator {
+  color: var(--ion-text-color) !important;
+}
+
+.react-select__menu {
+  z-index: 100 !important;
+}
+
+.form-group .react-select-container + label {
+  top: -12px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  background: var(--ion-background-color);
+  padding: 0 4px;
+  left: 8px;
+}
+
+/* Dashboard Select Styles */
+.filter-section ion-select {
+  --background: #ffffff;
+  --border-radius: 8px;
+  --box-shadow: none;
+  --placeholder-color: var(--ion-color-medium);
+  --placeholder-opacity: 1;
+  margin: 0;
+  padding: 0;
+  height: 42px;
+}
+
+.filter-section ion-select::part(text) {
+  color: var(--ion-text-color);
+  font-size: 14px;
+  margin: 0 8px;
+  line-height: 42px;
+}
+
+.filter-section ion-select::part(icon) {
+  color: var(--ion-color-medium);
+  opacity: 1;
+}
+
+/* Popover styles for the select */
+ion-select-popover {
+  --background: #ffffff;
+  --width: 250px;
+}
+
+ion-select-popover ion-item {
+  --background: #ffffff;
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-border-color);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 48px;
+}
+
+ion-select-popover ion-item:hover {
+  --background: var(--ion-color-light);
 }

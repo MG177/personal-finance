@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "default_bank_accounts",
+  "info": {
+    "singularName": "default-bank-account",
+    "pluralName": "default-bank-accounts",
+    "displayName": "default - Bank Account"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "bank_account": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::bank-account.bank-account"
+    }
+  }
+}

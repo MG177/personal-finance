@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   IonContent,
   IonPage,
@@ -37,12 +37,14 @@ import {
   addOutline,
   createOutline,
   trashOutline,
-  ellipsisVertical
+  ellipsisVertical,
+  chevronDownOutline
 } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useHistory } from 'react-router-dom';
 import strapiAPI from '../api/strapi';
 import qs from 'qs';
+import ReactMarkdown from 'react-markdown';
 import '../App.css';
 
 const Dashboard = () => {
@@ -58,12 +60,9 @@ const Dashboard = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [searchText, selectedType, dateRange]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -81,12 +80,12 @@ const Dashboard = () => {
         baseQueryParams.filters = {
           $or: [
             {
-              Title: {
+              title: {
                 $containsi: searchText
               }
             },
             {
-              Note: {
+              description: {
                 $containsi: searchText
               }
             }
@@ -117,32 +116,19 @@ const Dashboard = () => {
         if (!baseQueryParams.filters) {
           baseQueryParams.filters = {};
         }
-        baseQueryParams.filters.Date = {
+        baseQueryParams.filters.date = {
           $gte: startDate.toISOString(),
         };
       }
 
-      // Expense query parameters
-      const expenseQueryParams = {
+      // Base query parameters
+      const queryParams = {
         ...baseQueryParams,
         populate: {
-          expense_type: {
-            fields: ['Title', 'Monthly_Budget']
+          bank_account: {
+            fields: ['account_name', 'bank_name', 'currency']
           },
-          Photo: {
-            fields: ['url']
-          }
-        }
-      };
-
-      // Income query parameters
-      const incomeQueryParams = {
-        ...baseQueryParams,
-        populate: {
-          income_type: {
-            fields: ['Title', 'Monthly_Budget']
-          },
-          Photo: {
+          image: {
             fields: ['url']
           }
         }
@@ -150,72 +136,26 @@ const Dashboard = () => {
 
       // Add transaction type filter if selected
       if (selectedType && selectedType !== 'all') {
-        if (selectedType === 'expense') {
-          const expenseQuery = qs.stringify(expenseQueryParams, {
-            encodeValuesOnly: true,
-          });
-          const expensesRes = await strapiAPI.get(`/expanses?${expenseQuery}`);
-          const expenses = expensesRes.data.data.map(expense => ({
-            ...expense,
-            id: expense.id,
-            type: 'expense',
-            category: expense.expense_type?.data?.Title,
-            photoUrl: expense.Photo?.[0]?.url
-          }));
-          setTransactions(expenses);
-        } else {
-          const incomeQuery = qs.stringify(incomeQueryParams, {
-            encodeValuesOnly: true,
-          });
-          const incomesRes = await strapiAPI.get(`/incomes?${incomeQuery}`);
-          const incomes = incomesRes.data.data.map(income => ({
-            ...income,
-            id: income.id,
-            type: 'income',
-            category: income.income_type?.data?.Title,
-            photoUrl: income.Photo?.[0]?.url
-          }));
-          setTransactions(incomes);
-        }
-      } else {
-        // Fetch both expenses and incomes
-        const expenseQuery = qs.stringify(expenseQueryParams, {
-          encodeValuesOnly: true,
-        });
-        const incomeQuery = qs.stringify(incomeQueryParams, {
-          encodeValuesOnly: true,
-        });
-
-        const [expensesRes, incomesRes] = await Promise.all([
-          strapiAPI.get(`/expanses?${expenseQuery}`),
-          strapiAPI.get(`/incomes?${incomeQuery}`)
-        ]);
-
-        // Format expenses
-        const expenses = expensesRes.data.data.map(expense => ({
-          ...expense,
-          id: expense.id,
-          type: 'expense',
-          category: expense.expense_type?.data?.Title,
-          photoUrl: expense.Photo?.[0]?.url
-        }));
-
-        // Format incomes
-        const incomes = incomesRes.data.data.map(income => ({
-          ...income,
-          id: income.id,
-          type: 'income',
-          category: income.income_type?.data?.Title,
-          photoUrl: income.Photo?.[0]?.url
-        }));
-
-        // Combine and sort all transactions
-        const allTransactions = [...expenses, ...incomes].sort((a, b) => 
-          new Date(b.Date) - new Date(a.Date)
-        );
-
-        setTransactions(allTransactions);
+        queryParams.filters = {
+          ...queryParams.filters,
+          transaction_type: selectedType
+        };
       }
+
+      const query = qs.stringify(queryParams, {
+        encodeValuesOnly: true,
+      });
+
+      const transactionsRes = await strapiAPI.get(`/transactions?${query}`);
+      const formattedTransactions = transactionsRes.data.data.map(transaction => ({
+        ...transaction,
+        id: transaction.id,
+        type: transaction.transaction_type,
+        category: transaction.bank_account?.account_name,
+        photoUrl: transaction.image?.[0]?.url
+      }));
+
+      setTransactions(formattedTransactions);
 
       setLoading(false);
     } catch (error) {
@@ -227,7 +167,43 @@ const Dashboard = () => {
       });
       setLoading(false);
     }
-  };
+  }, [searchText, selectedType, dateRange]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  // Listen for navigation events
+  useEffect(() => {
+    // Subscribe to ionRouter:didEnter event
+    document.addEventListener('ionRouter:didEnter', (e) => {
+      if (e.detail.to === '/dashboard') {
+        fetchTransactions();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('ionRouter:didEnter', (e) => {
+        if (e.detail.to === '/dashboard') {
+          fetchTransactions();
+        }
+      });
+    };
+  }, [fetchTransactions]);
+
+  // Listen for custom refresh event
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchTransactions();
+    };
+
+    window.addEventListener('refresh-transactions', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refresh-transactions', handleRefresh);
+    };
+  }, [fetchTransactions]);
 
   const handleLogout = () => {
     logout();
@@ -296,6 +272,13 @@ const Dashboard = () => {
     }
   };
 
+  const toggleDescription = (transactionId) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [transactionId]: !prev[transactionId]
+    }));
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -312,14 +295,6 @@ const Dashboard = () => {
         <div className="dashboard-container">
           {/* Search and Filter Section */}
           <div className="search-filter-container">
-            <div className="search-box">
-              <IonSearchbar
-                value={searchText}
-                onIonChange={e => setSearchText(e.detail.value)}
-                placeholder="Search transactions..."
-                className="custom-searchbar"
-              />
-            </div>
             <div className="filter-section">
               <IonSegment 
                 value={selectedType} 
@@ -336,19 +311,31 @@ const Dashboard = () => {
                   <IonLabel>Incomes</IonLabel>
                 </IonSegmentButton>
               </IonSegment>
-
-              <IonSelect
-                value={dateRange}
-                placeholder="Select Date Range"
-                onIonChange={e => setDateRange(e.detail.value)}
-                className="custom-select"
-                interface="popover"
-              >
-                <IonSelectOption value="all">All Time</IonSelectOption>
-                <IonSelectOption value="today">Today</IonSelectOption>
-                <IonSelectOption value="week">Last Week</IonSelectOption>
-                <IonSelectOption value="month">Last Month</IonSelectOption>
-              </IonSelect>
+              {/* <div className='flex flex-row  gap-4'> */}
+                <div className="search-box">
+                  <IonSearchbar
+                    value={searchText}
+                    onIonInput={(e) => setSearchText(e.detail.value)}
+                    placeholder="Search transactions..."
+                    debounce={1000}
+                    className="custom-searchbar"
+                  />
+                </div>
+                <div className="search-box">
+                  <IonSelect
+                    value={dateRange}
+                    placeholder="Select Date Range"
+                    onIonChange={e => setDateRange(e.detail.value)}
+                    interface="popover"
+                    className="custom-searchbar"
+                  >
+                    <IonSelectOption value="all">All Time</IonSelectOption>
+                    <IonSelectOption value="today">Today</IonSelectOption>
+                    <IonSelectOption value="week">Last Week</IonSelectOption>
+                    <IonSelectOption value="month">Last Month</IonSelectOption>
+                  </IonSelect>
+                </div>
+                {/* </div> */}
             </div>
           </div>
 
@@ -368,77 +355,83 @@ const Dashboard = () => {
                 <IonList>
                   {transactions.map((transaction) => (
                     <IonItem key={transaction.id} className="transaction-item">
-                      <div className="transaction-photo">
-                        {transaction.photoUrl ? (
-                          <img 
-                            src={`${process.env.REACT_APP_STRAPI_URL}${transaction.photoUrl}`} 
-                            alt={transaction.Title}
-                            loading="lazy"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              const parent = e.target.parentElement;
-                              const placeholder = document.createElement('div');
-                              placeholder.className = 'photo-placeholder';
+                      <div className="transaction-content">
+                        <div className="transaction-photo">
+                          {transaction.photoUrl ? (
+                            <img 
+                              src={`${process.env.REACT_APP_STRAPI_URL}${transaction.photoUrl}`} 
+                              alt={transaction.title}
+                              loading="lazy"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                const parent = e.target.parentElement;
+                                const placeholder = document.createElement('div');
+                                placeholder.className = 'photo-placeholder';
                               placeholder.innerHTML = `
                                 <div class="placeholder-content">
                                   <span>No Image</span>
                                 </div>
                               `;
-                              parent.appendChild(placeholder);
-                            }}
-                          />
-                        ) : (
-                          <div className="photo-placeholder">
-                            <div className="placeholder-content">
-                              
-                              <span>No Image</span>
+                                parent.appendChild(placeholder);
+                              }}
+                            />
+                          ) : (
+                            <div className="photo-placeholder">
+                              <IonIcon icon={imageOutline} />
                             </div>
-                          </div>
-                        )}
-                      </div>
-                      <IonLabel>
-                        <h2 className="expense-title !font-semibold !truncate">
-                          <IonIcon 
-                            icon={getTransactionIcon(transaction.type)} 
-                            className={`ion-margin-end ${transaction.type}-icon`}
-                          />
-                          {transaction.Title}
-                          <span className="transaction-type">
-                            {transaction.type === 'expense' 
-                              ? transaction.expense_type?.Title
-                              : transaction.income_type?.Title
-                            }
-                          </span>
-                        </h2>
-                        <p className={getTransactionColor(transaction.type)}>
-                          <IonIcon icon={walletOutline} className="ion-margin-end" />
-                          {formatCurrency(transaction.Nominal, transaction.type)}
-                        </p>
-                        <p className="expense-date">
-                          <IonIcon icon={timeOutline} className="ion-margin-end" />
-                          {formatDate(transaction.Date)}
-                        </p>
-                        {transaction.Note && (
-                          <p className="expense-note">
-                            Note: {transaction.Note}
+                          )}
+                        </div>
+                        <IonLabel>
+                          <h2 className="expense-title !font-semibold !truncate">
+                            <IonIcon 
+                              icon={getTransactionIcon(transaction.type)} 
+                              className={`ion-margin-end ${transaction.type}-icon`}
+                            />
+                            {transaction.title}
+                            <span className="transaction-type">
+                              {transaction.type === 'expense' 
+                                ? transaction.expense_type?.title
+                                : transaction.income_type?.title
+                              }
+                            </span>
+                          </h2>
+                          <p className={getTransactionColor(transaction.type)}>
+                            <IonIcon icon={walletOutline} className="ion-margin-end" />
+                            {formatCurrency(transaction.amount, transaction.type)}
                           </p>
-                        )}
-                      </IonLabel>
-                      <div className="transaction-actions">
-                        <IonButton
-                          fill="clear"
-                          color="primary"
-                          onClick={() => handleEdit(transaction)}
-                        >
-                          <IonIcon slot="icon-only" icon={createOutline} />
-                        </IonButton>
-                        <IonButton
-                          fill="clear"
-                          color="danger"
-                          onClick={() => handleDeleteClick(transaction)}
-                        >
-                          <IonIcon slot="icon-only" icon={trashOutline} />
-                        </IonButton>
+                          <p className="expense-date">
+                            <IonIcon icon={timeOutline} className="ion-margin-end" />
+                            {formatDate(transaction.date)}
+                          </p>
+                          {transaction.description && (
+                            <>
+                              <div 
+                                className={`description-toggle ${expandedDescriptions[transaction.id] ? 'expanded' : ''}`}
+                                onClick={() => toggleDescription(transaction.id)}
+                              >
+                                <span>Note: </span>
+                                <IonIcon icon={chevronDownOutline} />
+                              </div>
+                              <div className={`transaction-description ${!expandedDescriptions[transaction.id] ? 'hidden' : ''}`}>
+                                <ReactMarkdown>{transaction.description}</ReactMarkdown>
+                              </div>
+                            </>
+                          )}
+                        </IonLabel>
+                        <div className="transaction-actions">
+                          <IonButton
+                            fill="clear"
+                            onClick={() => handleEdit(transaction)}
+                          >
+                            <IonIcon slot="icon-only" icon={createOutline} />
+                          </IonButton>
+                          <IonButton
+                            fill="clear"
+                            onClick={() => handleDeleteClick(transaction)}
+                          >
+                            <IonIcon slot="icon-only" icon={trashOutline} />
+                          </IonButton>
+                        </div>
                       </div>
                     </IonItem>
                   ))}

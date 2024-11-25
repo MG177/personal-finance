@@ -1,101 +1,86 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
   IonPage,
   IonTitle,
   IonToolbar,
-  IonButton,
   IonButtons,
   IonBackButton,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
   IonLoading,
-  IonDatetime,
   useIonToast,
-  IonIcon,
 } from '@ionic/react';
-import { camera, closeCircle } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import strapiAPI from '../api/strapi';
+import TransactionForm from '../components/form/TransactionForm';
 import '../App.css';
 
 const CreateTransaction = () => {
   const history = useHistory();
   const [present] = useIonToast();
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null);
 
   // Form states
   const [transactionType, setTransactionType] = useState('expense');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(new Date().toISOString());
-  const [notes, setNotes] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [types, setTypes] = useState([]);
+  const [description, setDescription] = useState('');
+  const [selectedBankAccount, setSelectedBankAccount] = useState('');
+  const [bankAccounts, setBankAccounts] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [previewUrls, setPreviewUrls] = useState([]);
 
-  // Load expense/income types based on transaction type
+  // Load bank accounts
   useEffect(() => {
-    const loadTypes = async () => {
+    const loadBankAccounts = async () => {
       try {
-        setLoading(true);
-        const endpoint = transactionType === 'expense' ? '/expense-types' : '/income-types';
-        const response = await strapiAPI.get(endpoint);
-        const formattedTypes = response.data.data.map(type => ({
-          documentId: type.documentId,
-          id: type.id,
-          title: type.Title,
-          budget: type.Monthly_Budget
+        const response = await strapiAPI.get('/bank-accounts', {
+          params: {
+            populate: 'icon'
+          }
+        });
+        const formattedAccounts = response.data.data.map(account => ({
+          id: account.id,
+          documentId: account.documentId,
+          accountName: account.account_name,
+          bankName: account.bank_name,
+          currency: account.currency,
+          iconUrl: account.icon?.url
         }));
-        setTypes(formattedTypes);
-        setSelectedType(''); // Reset selected type when switching
+        setBankAccounts(formattedAccounts);
       } catch (error) {
-        console.error('Error loading types:', error);
+        console.error('Error loading bank accounts:', error);
         present({
-          message: 'Failed to load types',
+          message: 'Failed to load bank accounts',
           duration: 3000,
           color: 'danger',
         });
-      } finally {
-        setLoading(false);
+      }
+    };
+    
+    const getDefaulkBankAccount = async () => {
+      try {
+        const response = await strapiAPI.get('/default-bank-account?populate=*');
+        const defaultAccount = response.data.data.bank_account;
+        
+        setSelectedBankAccount(defaultAccount.id);
+      } catch (error) {
+        console.error('Error getting default bank account:', error);
+        present({
+          message: 'Failed to get default bank account',
+          duration: 3000,
+          color: 'danger',
+        });
       }
     };
 
-    loadTypes();
-  }, [transactionType]);
-
-  // Handle file selection
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      setSelectedFiles(prevFiles => [...prevFiles, ...files]);
-      
-      // Generate preview URLs for new files
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviewUrls(prevUrls => [...prevUrls, reader.result]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
-
-  // Remove selected photo
-  const handleRemovePhoto = (index) => {
-    setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-    setPreviewUrls(prevUrls => prevUrls.filter((_, i) => i !== index));
-  };
+    getDefaulkBankAccount();
+    loadBankAccounts();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!title || !amount || !selectedType) {
+    if (!title || !amount || !selectedBankAccount) {
       present({
         message: 'Please fill in all required fields',
         duration: 3000,
@@ -106,12 +91,9 @@ const CreateTransaction = () => {
 
     try {
       setLoading(true);
-      const endpoint = transactionType === 'expense' ? '/expanses' : '/incomes';
-      const typeField = transactionType === 'expense' ? 'expense_type' : 'income_type';
 
+      // First upload files if any
       let fileIds = [];
-      
-      // First, upload images if any
       if (selectedFiles.length > 0) {
         const formData = new FormData();
         selectedFiles.forEach(file => {
@@ -131,31 +113,31 @@ const CreateTransaction = () => {
         }
       }
 
-      console.log(fileIds);
-      
-
-      // Then create transaction with image relations
+      // Create transaction with image relations
       const transactionData = {
-        Title: title,
-        Nominal: parseFloat(amount),
-        Date: date,
-        Note: notes,
-        [typeField]: {
-          connect: [selectedType]
-        },
+        title: title,
+        amount: parseFloat(amount),
+        description: description,
+        transaction_type: transactionType,
+        bank_account: selectedBankAccount,
         ...(fileIds.length > 0 && {
-          Photo: fileIds
+          image: fileIds
         })
       };
 
-      await strapiAPI.post(endpoint, { data: transactionData });
-
+      await strapiAPI.post('/transactions', {
+        data: transactionData
+      });
+      
       present({
         message: 'Transaction created successfully',
         duration: 3000,
         color: 'success',
       });
 
+      // Dispatch refresh event before navigation
+      window.dispatchEvent(new Event('refresh-transactions'));
+      
       history.push('/dashboard');
     } catch (error) {
       console.error('Error creating transaction:', error);
@@ -177,161 +159,40 @@ const CreateTransaction = () => {
             <IonBackButton defaultHref="/dashboard" />
           </IonButtons>
           <IonTitle>Create Transaction</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleSubmit} strong={true}>
-              Save
-            </IonButton>
-          </IonButtons>
         </IonToolbar>
       </IonHeader>
-
-      <IonContent className="ion-padding">
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle className="ion-text-center">Create Transaction</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <form onSubmit={handleSubmit} className="form-group">
-              {/* Transaction Type Selector */}
-              <div className="form-group">
-                <select
-                  id="transaction-type"
-                  value={transactionType}
-                  onChange={e => setTransactionType(e.target.value)}
-                  required
-                  className="custom-select"
-                >
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-                <label htmlFor="transaction-type">Transaction Type</label>
-              </div>
-
-              {/* Title */}
-              <div className="form-group">
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  required
-                  placeholder="Enter title"
-                />
-                <label htmlFor="title">Title</label>
-              </div>
-
-              {/* Amount */}
-              <div className="form-group">
-                <input
-                  type="number"
-                  id="amount"
-                  value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                  required
-                  placeholder="Enter amount"
-                  step="0.01"
-                />
-                <label htmlFor="amount">Amount</label>
-              </div>
-
-              {/* Date */}
-              <div className="form-group">
-                <IonDatetime
-                  id="date"
-                  value={date}
-                  onIonChange={e => setDate(e.detail.value)}
-                  displayFormat="MMM DD, YYYY"
-                  max={new Date().getFullYear() + 5}
-                  min="2000"
-                  className="date-input"
-                />
-                <label htmlFor="date">Date</label>
-              </div>
-
-              {/* Type Selection */}
-              <div className="form-group">
-                <select
-                  id="type"
-                  value={selectedType}
-                  onChange={e => setSelectedType(e.target.value)}
-                  required
-                  className="custom-select"
-                >
-                  <option value="">Select type</option>
-                  {types.map(type => (
-                    <option key={type.documentId} value={type.documentId}>
-                      {type.title}
-                    </option>
-                  ))}
-                </select>
-                <label htmlFor="type">
-                  {transactionType === 'expense' ? 'Expense Type' : 'Income Type'}
-                </label>
-              </div>
-
-              {/* Notes */}
-              <div className="form-group">
-                <textarea
-                  id="notes"
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  placeholder="Enter notes (optional)"
-                  rows={4}
-                  className="custom-textarea"
-                />
-                <label htmlFor="notes">Notes</label>
-              </div>
-
-              {/* Photo Upload */}
-              <div className="form-group photo-upload-container">
-                <label htmlFor="photo" className="photo-upload-label">
-                  Photos (optional)
-                </label>
-                <div className="photo-upload-content">
-                  <div className="photos-grid">
-                    {previewUrls.map((url, index) => (
-                      <div key={index} className="photo-preview">
-                        <img src={url} alt={`Preview ${index + 1}`} />
-                        <button
-                          type="button"
-                          className="remove-photo-btn"
-                          onClick={() => handleRemovePhoto(index)}
-                        >
-                          <IonIcon icon={closeCircle} />
-                        </button>
-                      </div>
-                    ))}
-                    <div 
-                      className="photo-upload-placeholder"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <IonIcon icon={camera} />
-                      <span>Add Photos</span>
-                    </div>
-                  </div>
-                  <input
-                    type="file"
-                    id="photo"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    style={{ display: 'none' }}
-                    multiple
-                  />
-                </div>
-              </div>
-
-              <IonButton
-                expand="block"
-                type="submit"
-                className="ion-margin-top"
-              >
-                Save Transaction
-              </IonButton>
-            </form>
-          </IonCardContent>
-        </IonCard>
-
+      <IonContent>
+        <div className="form-container">
+          <div className="form-frame">
+            <h1 className="form-title">Create New Transaction</h1>
+            <TransactionForm
+              // Form values
+              transactionType={transactionType}
+              title={title}
+              amount={amount}
+              description={description}
+              selectedBankAccount={selectedBankAccount}
+              selectedFiles={selectedFiles}
+              bankAccounts={bankAccounts}
+              loading={loading}
+              
+              // Event handlers
+              onSubmit={handleSubmit}
+              onTransactionTypeChange={setTransactionType}
+              onTitleChange={setTitle}
+              onAmountChange={setAmount}
+              onDescriptionChange={setDescription}
+              onBankAccountChange={setSelectedBankAccount}
+              onFileSelect={(files) => setSelectedFiles(prevFiles => [...prevFiles, ...files])}
+              onFileRemove={(index) => {
+                setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+              }}
+              
+              // Button text
+              submitButtonText="Create Transaction"
+            />
+          </div>
+        </div>
         <IonLoading isOpen={loading} message="Please wait..." />
       </IonContent>
     </IonPage>

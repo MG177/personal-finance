@@ -65,17 +65,23 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "expanses": {
+    "categories": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::expanse.expanse",
+      "target": "api::category.category",
+      "mappedBy": "user"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tag.tag",
       "mappedBy": "users_permissions_user"
     },
-    "incomes": {
+    "bank_accounts": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::income.income",
-      "mappedBy": "users_permissions_user"
+      "target": "api::bank-account.bank-account",
+      "mappedBy": "user"
     }
   }
 }
