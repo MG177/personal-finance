@@ -250,7 +250,7 @@ const Dashboard = () => {
       maximumFractionDigits: 0
     }).format(Math.abs(amount));
 
-    return type === 'expense' ? `- ${formatted}` : formatted;
+    return type === 'expense' ? `-${formatted}` : formatted;
   };
 
   const getTransactionIcon = (type) => {
@@ -397,7 +397,7 @@ const Dashboard = () => {
                         )}
                       </div>
                       <IonLabel>
-                        <h2 className="expense-title">
+                        <h2 className="expense-title !font-semibold !truncate">
                           <IonIcon 
                             icon={getTransactionIcon(transaction.type)} 
                             className={`ion-margin-end ${transaction.type}-icon`}
@@ -405,8 +405,8 @@ const Dashboard = () => {
                           {transaction.Title}
                           <span className="transaction-type">
                             {transaction.type === 'expense' 
-                              ? transaction.expense_type?.data?.Title
-                              : transaction.income_type?.data?.Title
+                              ? transaction.expense_type?.Title
+                              : transaction.income_type?.Title
                             }
                           </span>
                         </h2>
