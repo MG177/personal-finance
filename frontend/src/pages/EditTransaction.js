@@ -26,9 +26,11 @@ const EditTransaction = () => {
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const [selectedBankAccount, setSelectedBankAccount] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [bankAccounts, setBankAccounts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(new Date().toISOString());
 
@@ -38,7 +40,7 @@ const EditTransaction = () => {
       try {
         const response = await strapiAPI.get(`/transactions/${id}`, {
           params: {
-            populate: ['bank_account', 'image']
+            populate: ['bank_account', 'category', 'image']
           }
         });
         const transaction = response.data.data;
@@ -48,6 +50,7 @@ const EditTransaction = () => {
         setAmount(transaction.amount.toString());
         setTransactionType(transaction.transaction_type);
         setSelectedBankAccount(transaction.bank_account?.id || '');
+        setSelectedCategory(transaction.category?.id || '');
         setDate(transaction.date || new Date().toISOString());
 
         // Handle existing images
@@ -75,7 +78,7 @@ const EditTransaction = () => {
     loadTransaction();
   }, [id]);
 
-  // Load bank accounts
+  // Load bank accounts and categories
   useEffect(() => {
     const loadBankAccounts = async () => {
       try {
@@ -103,7 +106,31 @@ const EditTransaction = () => {
       }
     };
 
+    const loadCategories = async () => {
+      try {
+        const response = await strapiAPI.get('/categories', {
+          params: {
+            populate: 'icon'
+          }
+        });
+        const formattedCategories = response.data.data.map(category => ({
+          id: category.id,
+          name: category.category_name,
+          iconUrl: category.icon?.url
+        }));
+        setCategories(formattedCategories);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        present({
+          message: 'Failed to load categories',
+          duration: 3000,
+          color: 'danger',
+        });
+      }
+    };
+
     loadBankAccounts();
+    loadCategories();
   }, []);
 
   // Handle file selection
@@ -144,6 +171,16 @@ const EditTransaction = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!title || !amount || !selectedBankAccount || !selectedCategory) {
+      setLoading(false);
+      present({
+        message: 'Please fill in all required fields',
+        duration: 3000,
+        color: 'warning',
+      });
+      return;
+    }
+
     try {
       // First upload new files if any
       let fileIds = [];
@@ -173,19 +210,20 @@ const EditTransaction = () => {
 
       // Prepare transaction data
       const transactionData = {
-        title,
-        description: description.content || null,
-        amount: parseFloat(amount),
-        transaction_type: transactionType,
-        bank_account: selectedBankAccount,
-        date: date,
-        image: [...existingImageIds, ...fileIds]
+        data: {
+          title,
+          amount: parseFloat(amount),
+          description,
+          transaction_type: transactionType,
+          bank_account: selectedBankAccount,
+          category: selectedCategory,
+          date,
+          image: fileIds.length > 0 ? fileIds : undefined
+        }
       };
 
       // Update transaction with proper data wrapper
-      await strapiAPI.put(`/transactions/${id}`, {
-        data: transactionData
-      });
+      await strapiAPI.put(`/transactions/${id}`, transactionData);
       
       present({
         message: 'Transaction updated successfully',
@@ -228,33 +266,29 @@ const EditTransaction = () => {
           <div className="form-frame">
             <h1 className="form-title">Edit Transaction Details</h1>
             <TransactionForm
-              // Form values
               transactionType={transactionType}
               title={title}
               amount={amount}
               description={description}
               selectedBankAccount={selectedBankAccount}
+              selectedCategory={selectedCategory}
               selectedFiles={selectedFiles}
               existingFiles={existingImages}
               bankAccounts={bankAccounts}
+              categories={categories}
               loading={loading}
               date={date}
-              
-              // Event handlers
               onSubmit={handleSubmit}
               onTransactionTypeChange={setTransactionType}
               onTitleChange={setTitle}
               onAmountChange={setAmount}
               onDescriptionChange={handleDescriptionChange}
               onBankAccountChange={setSelectedBankAccount}
-              onFileSelect={(files) => setSelectedFiles(prevFiles => [...prevFiles, ...files])}
-              onFileRemove={(index) => {
-                setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-              }}
+              onCategoryChange={setSelectedCategory}
+              onFileSelect={handleFileSelect}
+              onFileRemove={handleFileRemove}
               onExistingFileRemove={handleRemoveExistingImage}
               onDateChange={setDate}
-              
-              // Button text
               submitButtonText="Update Transaction"
             />
           </div>

@@ -38,6 +38,16 @@
       "relation": "oneToMany",
       "target": "api::transaction.transaction",
       "mappedBy": "category"
+    },
+    "icon": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

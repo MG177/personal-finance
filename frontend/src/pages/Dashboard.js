@@ -126,12 +126,26 @@ const Dashboard = () => {
         ...baseQueryParams,
         populate: {
           bank_account: {
-            fields: ['account_name', 'bank_name', 'currency']
+            fields: ['account_name', 'bank_name', 'currency'],
+            populate: {
+              icon: {
+                fields: ['url']
+              }
+            }
           },
           image: {
             fields: ['url']
+          },
+          category: {
+            fields: ['category_name'],
+            populate: {
+              icon: {
+                fields: ['url']
+              }
+            }
           }
-        }
+        },
+        sort: ['date:desc']  // Sort by date in descending order
       };
 
       // Add transaction type filter if selected
@@ -151,7 +165,10 @@ const Dashboard = () => {
         ...transaction,
         id: transaction.id,
         type: transaction.transaction_type,
-        category: transaction.bank_account?.account_name,
+        category: transaction.category?.category_name,
+        categoryIconUrl: process.env.REACT_APP_STRAPI_URL + transaction.category?.icon?.url,
+        bank_account: transaction.bank_account?.account_name,
+        bank_accountIconUrl: process.env.REACT_APP_STRAPI_URL + transaction.bank_account?.icon?.url,
         photoUrl: transaction.image?.[0]?.url
       }));
 
@@ -311,8 +328,9 @@ const Dashboard = () => {
                   <IonLabel>Incomes</IonLabel>
                 </IonSegmentButton>
               </IonSegment>
-              {/* <div className='flex flex-row  gap-4'> */}
-                <div className="search-box">
+              <div className='flex flex-row gap-4 w-full flex-grow mt-4'>
+              {/* <div> */}
+                <div className="search-box w-full">
                   <IonSearchbar
                     value={searchText}
                     onIonInput={(e) => setSearchText(e.detail.value)}
@@ -321,7 +339,7 @@ const Dashboard = () => {
                     className="custom-searchbar"
                   />
                 </div>
-                <div className="search-box">
+                <div className="date-box">
                   <IonSelect
                     value={dateRange}
                     placeholder="Select Date Range"
@@ -335,7 +353,7 @@ const Dashboard = () => {
                     <IonSelectOption value="month">Last Month</IonSelectOption>
                   </IonSelect>
                 </div>
-                {/* </div> */}
+                </div>
             </div>
           </div>
 
@@ -355,7 +373,7 @@ const Dashboard = () => {
                 <IonList>
                   {transactions.map((transaction) => (
                     <IonItem key={transaction.id} className="transaction-item">
-                      <div className="transaction-content">
+                      <div className={`transaction-content ${transaction.type}`}>
                         <div className="transaction-photo">
                           {transaction.photoUrl ? (
                             <img 
@@ -369,7 +387,7 @@ const Dashboard = () => {
                                 placeholder.className = 'photo-placeholder';
                               placeholder.innerHTML = `
                                 <div class="placeholder-content">
-                                  <span>No Image</span>
+                                  <IonIcon icon={imageOutline} />
                                 </div>
                               `;
                                 parent.appendChild(placeholder);
@@ -381,35 +399,61 @@ const Dashboard = () => {
                             </div>
                           )}
                         </div>
-                        <IonLabel>
-                          <h2 className="expense-title !font-semibold !truncate">
-                            <IonIcon 
-                              icon={getTransactionIcon(transaction.type)} 
-                              className={`ion-margin-end ${transaction.type}-icon`}
-                            />
-                            {transaction.title}
-                            <span className="transaction-type">
-                              {transaction.type === 'expense' 
-                                ? transaction.expense_type?.title
-                                : transaction.income_type?.title
-                              }
-                            </span>
-                          </h2>
-                          <p className={getTransactionColor(transaction.type)}>
-                            <IonIcon icon={walletOutline} className="ion-margin-end" />
-                            {formatCurrency(transaction.amount, transaction.type)}
-                          </p>
-                          <p className="expense-date">
-                            <IonIcon icon={timeOutline} className="ion-margin-end" />
-                            {formatDate(transaction.date)}
-                          </p>
+                        
+                        <div className="transaction-details">
+                          <div className="transaction-header">
+                            <div className="transaction-title-group">
+                              <h2 className="transaction-title">
+                                <IonIcon 
+                                  icon={getTransactionIcon(transaction.type)} 
+                                  className={`${transaction.type}-icon`}
+                                />
+                                <span>{transaction.title}</span>
+                              </h2>
+                            </div>
+                            <div className="transaction-meta">
+                              <div className="meta-item">
+                                <img 
+                                  src={transaction.categoryIconUrl || '/no-image-available-icon.jpg'} 
+                                  alt=""
+                                  className="meta-icon"
+                                  onError={(e) => {
+                                    e.target.src = '/no-image-available-icon.jpg';
+                                  }}
+                                />
+                                <span className="transaction-type">
+                                  {transaction.category}
+                                </span>
+                              </div>
+                              <div className="meta-item">
+                                <img 
+                                  src={transaction.bank_accountIconUrl || '/no-image-available-icon.jpg'}
+                                  alt=""
+                                  className="meta-icon"
+                                  onError={(e) => {
+                                    e.target.src = '/no-image-available-icon.jpg';
+                                  }}
+                                />
+                                <span className="transaction-type">
+                                  {transaction.bank_account}
+                                </span>
+                              </div>
+                              <div className="meta-item">
+                                <IonIcon icon={timeOutline} className="meta-icon" />
+                                <span className="transaction-date">
+                                  {formatDate(transaction.date)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
                           {transaction.description && (
                             <>
                               <div 
                                 className={`description-toggle ${expandedDescriptions[transaction.id] ? 'expanded' : ''}`}
                                 onClick={() => toggleDescription(transaction.id)}
                               >
-                                <span>Note: </span>
+                                <span>Notes</span>
                                 <IonIcon icon={chevronDownOutline} />
                               </div>
                               <div 
@@ -419,20 +463,28 @@ const Dashboard = () => {
                               </div>
                             </>
                           )}
-                        </IonLabel>
-                        <div className="transaction-actions">
-                          <IonButton
-                            fill="clear"
-                            onClick={() => handleEdit(transaction)}
-                          >
-                            <IonIcon slot="icon-only" icon={createOutline} />
-                          </IonButton>
-                          <IonButton
-                            fill="clear"
-                            onClick={() => handleDeleteClick(transaction)}
-                          >
-                            <IonIcon slot="icon-only" icon={trashOutline} />
-                          </IonButton>
+                        </div>
+                        <div className='flex flex-col items-end'>
+                          <div className={`transaction-amount ${transaction.type}-amount`}>
+                            {formatCurrency(transaction.amount, transaction.type)}
+                          </div>
+                          
+                          <div className="transaction-actions">
+                                <IonButton
+                                  fill="clear"
+                                  onClick={() => handleEdit(transaction)}
+                                  className="action-button"
+                                >
+                                  <IonIcon slot="icon-only" icon={createOutline} />
+                                </IonButton>
+                                <IonButton
+                                  fill="clear"
+                                  onClick={() => handleDeleteClick(transaction)}
+                                  className="action-button"
+                                >
+                                  <IonIcon slot="icon-only" icon={trashOutline} />
+                                </IonButton>
+                              </div>
                         </div>
                       </div>
                     </IonItem>

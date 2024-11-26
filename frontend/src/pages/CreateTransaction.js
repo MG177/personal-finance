@@ -26,11 +26,13 @@ const CreateTransaction = () => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [selectedBankAccount, setSelectedBankAccount] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [bankAccounts, setBankAccounts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [date, setDate] = useState(new Date().toISOString());
 
-  // Load bank accounts
+  // Load bank accounts and categories
   useEffect(() => {
     const loadBankAccounts = async () => {
       try {
@@ -58,6 +60,29 @@ const CreateTransaction = () => {
       }
     };
     
+    const loadCategories = async () => {
+      try {
+        const response = await strapiAPI.get('/categories', {
+          params: {
+            populate: 'icon'
+          }
+        });
+        const formattedCategories = response.data.data.map(category => ({
+          id: category.id,
+          name: category.category_name,
+          iconUrl: category.icon?.url
+        }));
+        setCategories(formattedCategories);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        present({
+          message: 'Failed to load categories',
+          duration: 3000,
+          color: 'danger',
+        });
+      }
+    };
+
     const getDefaulkBankAccount = async () => {
       try {
         const response = await strapiAPI.get('/default-bank-account?populate=*');
@@ -76,12 +101,15 @@ const CreateTransaction = () => {
 
     getDefaulkBankAccount();
     loadBankAccounts();
+    loadCategories();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
-    if (!title || !amount || !selectedBankAccount) {
+    if (!title || !amount || !selectedBankAccount || !selectedCategory) {
+      setLoading(false);
       present({
         message: 'Please fill in all required fields',
         duration: 3000,
@@ -91,8 +119,6 @@ const CreateTransaction = () => {
     }
 
     try {
-      setLoading(true);
-
       // First upload files if any
       let fileIds = [];
       if (selectedFiles.length > 0) {
@@ -114,22 +140,21 @@ const CreateTransaction = () => {
         }
       }
 
-      // Create transaction with image relations
+      // Create transaction
       const transactionData = {
-        title,
-        description: description?.content || null,
-        amount: parseFloat(amount),
-        transaction_type: transactionType,
-        bank_account: selectedBankAccount,
-        date: date,
-        ...(fileIds.length > 0 && {
-          image: fileIds
-        })
+        data: {
+          title,
+          amount: parseFloat(amount),
+          description,
+          transaction_type: transactionType,
+          bank_account: selectedBankAccount,
+          category: selectedCategory,
+          date,
+          image: fileIds.length > 0 ? fileIds : undefined
+        }
       };
 
-      await strapiAPI.post('/transactions', {
-        data: transactionData
-      });
+      await strapiAPI.post('/transactions', transactionData);
       
       present({
         message: 'Transaction created successfully',
@@ -157,6 +182,14 @@ const CreateTransaction = () => {
     setDescription(value);
   };
 
+  const handleFileSelect = (files) => {
+    setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+  };
+
+  const handleFileRemove = (index) => {
+    setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -172,31 +205,27 @@ const CreateTransaction = () => {
           <div className="form-frame">
             <h1 className="form-title">Create New Transaction</h1>
             <TransactionForm
-              // Form values
               transactionType={transactionType}
               title={title}
               amount={amount}
               description={description}
               selectedBankAccount={selectedBankAccount}
+              selectedCategory={selectedCategory}
               selectedFiles={selectedFiles}
               bankAccounts={bankAccounts}
+              categories={categories}
               loading={loading}
               date={date}
-              
-              // Event handlers
               onSubmit={handleSubmit}
               onTransactionTypeChange={setTransactionType}
               onTitleChange={setTitle}
               onAmountChange={setAmount}
               onDescriptionChange={handleDescriptionChange}
               onBankAccountChange={setSelectedBankAccount}
-              onFileSelect={(files) => setSelectedFiles(prevFiles => [...prevFiles, ...files])}
-              onFileRemove={(index) => {
-                setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-              }}
+              onCategoryChange={setSelectedCategory}
+              onFileSelect={handleFileSelect}
+              onFileRemove={handleFileRemove}
               onDateChange={setDate}
-              
-              // Button text
               submitButtonText="Create Transaction"
             />
           </div>

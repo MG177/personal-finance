@@ -3,6 +3,7 @@ import { IonButton, IonDatetime, IonModal, IonDatetimeButton } from '@ionic/reac
 import TiptapEditor from './TiptapEditor';
 import TransactionTypeSelect from './TransactionTypeSelect';
 import BankAccountSelect from './BankAccountSelect';
+import CategorySelect from './CategorySelect';
 import TextInput from './TextInput';
 import CurrencyInput from './CurrencyInput';
 import FileUpload from './FileUpload';
@@ -13,9 +14,11 @@ const TransactionForm = ({
   amount,
   description,
   selectedBankAccount,
+  selectedCategory,
   selectedFiles,
   existingFiles,
   bankAccounts,
+  categories,
   loading,
   date,
   onSubmit,
@@ -24,6 +27,7 @@ const TransactionForm = ({
   onAmountChange,
   onDescriptionChange,
   onBankAccountChange,
+  onCategoryChange,
   onFileSelect,
   onFileRemove,
   onExistingFileRemove,
@@ -52,6 +56,13 @@ const TransactionForm = ({
           value={selectedBankAccount}
           onChange={onBankAccountChange}
           bankAccounts={bankAccounts}
+        />
+
+        {/* Category */}
+        <CategorySelect
+          value={selectedCategory}
+          onChange={onCategoryChange}
+          categories={categories}
         />
 
         {/* Title */}

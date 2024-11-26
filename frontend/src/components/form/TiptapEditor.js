@@ -45,20 +45,6 @@ const MenuBar = ({ editor }) => {
       >
         italic
       </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive('bulletList') ? 'is-active' : ''}
-      >
-        bullet list
-      </button>
-      <button
-        type="button"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={editor.isActive('orderedList') ? 'is-active' : ''}
-      >
-        ordered list
-      </button>
     </div>
   );
 };
@@ -101,18 +87,21 @@ const convertTiptapToStrapi = (tiptapJson) => {
       return {
         type: 'list',
         format: node.type === 'orderedList' ? 'ordered' : 'unordered',
-        children: (node.content || []).map(listItem => ({
-          type: 'listItem',
-          children: (listItem.content || []).map(paragraph => ({
-            type: 'paragraph',
-            children: (paragraph.content || []).map(child => ({
-              type: 'text',
-              text: child.text || '',
-              bold: child.marks?.some(mark => mark.type === 'bold') || false,
-              italic: child.marks?.some(mark => mark.type === 'italic') || false,
-            }))
-          }))
-        }))
+        children: (node.content || []).map(listItem => {
+          const paragraphContent = listItem.content?.[0]?.content || [];
+          return {
+            type: 'list-item',
+            children: [{
+              type: 'paragraph',
+              children: paragraphContent.map(child => ({
+                type: 'text',
+                text: child.text || '',
+                bold: child.marks?.some(mark => mark.type === 'bold') || false,
+                italic: child.marks?.some(mark => mark.type === 'italic') || false,
+              }))
+            }]
+          };
+        })
       };
     }
 
@@ -127,7 +116,10 @@ const convertStrapiToTiptap = (strapiContent) => {
   if (!strapiContent) {
     return {
       type: 'doc',
-      content: [{ type: 'paragraph' }]
+      content: [{ 
+        type: 'paragraph',
+        content: [{ type: 'text', text: '' }]
+      }]
     };
   }
 
@@ -148,8 +140,8 @@ const convertStrapiToTiptap = (strapiContent) => {
             marks: [
               ...(child.bold ? [{ type: 'bold' }] : []),
               ...(child.italic ? [{ type: 'italic' }] : [])
-            ]
-          }))
+            ].filter(mark => mark)
+          })) || []
         };
       }
 
@@ -162,28 +154,32 @@ const convertStrapiToTiptap = (strapiContent) => {
             marks: [
               ...(child.bold ? [{ type: 'bold' }] : []),
               ...(child.italic ? [{ type: 'italic' }] : [])
-            ]
-          }))
+            ].filter(mark => mark)
+          })) || []
         };
       }
 
       if (node.type === 'list') {
+        const listType = node.format === 'ordered' ? 'orderedList' : 'bulletList';
         return {
-          type: node.format === 'ordered' ? 'orderedList' : 'bulletList',
-          content: node.children?.map(item => ({
-            type: 'listItem',
-            content: item.children?.map(paragraph => ({
-              type: 'paragraph',
-              content: paragraph.children?.map(child => ({
-                type: 'text',
-                text: child.text || '',
-                marks: [
-                  ...(child.bold ? [{ type: 'bold' }] : []),
-                  ...(child.italic ? [{ type: 'italic' }] : [])
-                ]
-              }))
-            }))
-          }))
+          type: listType,
+          content: node.children?.map(item => {
+            const paragraphContent = item.children?.[0]?.children || [];
+            return {
+              type: 'listItem',
+              content: [{
+                type: 'paragraph',
+                content: paragraphContent.map(child => ({
+                  type: 'text',
+                  text: child.text || '',
+                  marks: [
+                    ...(child.bold ? [{ type: 'bold' }] : []),
+                    ...(child.italic ? [{ type: 'italic' }] : [])
+                  ].filter(mark => mark)
+                }))
+              }]
+            };
+          }) || []
         };
       }
 

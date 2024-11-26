@@ -1,14 +1,17 @@
 import React from 'react';
 import Select, { components } from 'react-select';
 
-const BankAccountSelect = ({ value, onChange, bankAccounts, required = true }) => {
-  // Format bank accounts for react-select
-  const bankAccountOptions = bankAccounts.map(account => ({
-    value: account.id,
-    label: `${account.accountName} (${account.currency})`,
-    iconUrl: account.iconUrl ? `${process.env.REACT_APP_STRAPI_URL}${account.iconUrl}` : null,
-    account: account
+const CategorySelect = ({ value, onChange, categories, required = true }) => {
+  // Format categories for react-select
+  const categoryOptions = categories.map(category => ({
+    value: category.id,
+    label: category.name,
+    iconUrl: category.iconUrl ? `${process.env.REACT_APP_STRAPI_URL}${category.iconUrl}` : null,
+    category: category
   }));
+
+  console.log(categories);
+  
 
   // Custom styles for react-select
   const customStyles = {
@@ -24,7 +27,7 @@ const BankAccountSelect = ({ value, onChange, bankAccounts, required = true }) =
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isSelected ? '#acc5eb !important' : 'var(--ion-item-background)',
-      color: '#000000 !important', // Force black color always
+      color: '#000000 !important',
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
@@ -52,10 +55,10 @@ const BankAccountSelect = ({ value, onChange, bankAccounts, required = true }) =
     Option: ({ children, ...props }) => (
       <components.Option {...props}>
         {props.data.iconUrl ? (
-          <img
-            src={props.data.iconUrl}
-            alt=""
-            style={{ width: 20, height: 20, objectFit: 'contain' }}
+          <img 
+            src={props.data.iconUrl} 
+            alt="" 
+            style={{ width: 20, height: 20, objectFit: 'contain' }} 
           />
         ) : (
           <img 
@@ -70,10 +73,10 @@ const BankAccountSelect = ({ value, onChange, bankAccounts, required = true }) =
     SingleValue: ({ children, ...props }) => (
       <components.SingleValue {...props}>
         {props.data.iconUrl ? (
-          <img
-            src={props.data.iconUrl}
-            alt=""
-            style={{ width: 20, height: 20, objectFit: 'contain' }}
+          <img 
+            src={props.data.iconUrl} 
+            alt="" 
+            style={{ width: 20, height: 20, objectFit: 'contain' }} 
           />
         ) : (
           <img 
@@ -84,27 +87,26 @@ const BankAccountSelect = ({ value, onChange, bankAccounts, required = true }) =
         )}
         {children}
       </components.SingleValue>
-    ),
+    )
   };
 
   return (
     <div className="form-group">
       <Select
-        id="bank-account"
-        value={bankAccountOptions.find(option => option.value === value)}
-        onChange={(option) => onChange(option.value)}
-        options={bankAccountOptions}
+        id="category"
+        value={categoryOptions.find(option => option.value === value)}
+        onChange={(selectedOption) => onChange(selectedOption ? selectedOption.value : null)}
+        options={categoryOptions}
         styles={customStyles}
         components={customComponents}
-        placeholder="Select Bank Account"
+        isClearable
+        placeholder="Select category..."
         className="react-select-container"
         classNamePrefix="react-select"
-        isSearchable={false}
-        required={required}
       />
-      <label htmlFor="bank-account">Bank Account</label>
+      <label htmlFor="category">Category</label>
     </div>
   );
 };
 
-export default BankAccountSelect;
+export default CategorySelect;
