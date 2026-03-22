@@ -32,6 +32,14 @@ After fresh Strapi start with empty DB, the Authenticated role has all API permi
 - **Hardcoded invalid API token in `frontend/src/api/strapi.js`**: The axios instance has a hardcoded `Authorization: Bearer <token>` default header. This token is invalid and causes 401 errors on ALL requests made through `strapiAPI`, including auth endpoints (`auth/local`, `auth/local/register`). The `AuthContext` overrides this header after login, but the login/register flow itself fails because the invalid token is sent with the auth request. The backend curl API works fine without this token. To test the frontend end-to-end, either fix the hardcoded token or inject valid credentials into localStorage.
 - **Frontend tests broken**: axios v1.x uses ESM which CRA's Jest config doesn't support. `npm test` fails with `SyntaxError: Cannot use import statement outside a module`.
 
+### Playwright E2E Tests
+
+- Run with `npm run test:e2e` from workspace root (both servers must be running or will auto-start via `webServer` config).
+- Uses POM classes in `tests/pom/`, specs in `tests/e2e/`, see `tests/README.md` for full architecture.
+- The `tests/fixtures.ts` `autoFixAuth` fixture intercepts all `/api/**` requests to replace the hardcoded invalid token with the real JWT from storageState. All authenticated specs must import from `../fixtures` instead of `@playwright/test`.
+- `globalSetup` creates an E2E user via Strapi REST API and seeds bank accounts, categories, and transactions. Auth is persisted via `storageState` to `tests/.auth/user.json` (gitignored).
+- Ionic caches multiple views in the DOM — POM selectors must use `.last()` or role-based locators to avoid strict mode violations on duplicate elements.
+
 ### Key files
 
 - `frontend/src/api/strapi.js` — Axios instance; hardcoded invalid API token breaks auth flow (see above).
