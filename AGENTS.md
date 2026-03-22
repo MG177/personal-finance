@@ -27,8 +27,13 @@ After fresh Strapi start with empty DB, the Authenticated role has all API permi
 - **No backend tests** are configured in the repo.
 - The user has requested: **DO NOT RUN ESLINT AND BUILD COMMAND**.
 
+### Known pre-existing bugs
+
+- **Hardcoded invalid API token in `frontend/src/api/strapi.js`**: The axios instance has a hardcoded `Authorization: Bearer <token>` default header. This token is invalid and causes 401 errors on ALL requests made through `strapiAPI`, including auth endpoints (`auth/local`, `auth/local/register`). The `AuthContext` overrides this header after login, but the login/register flow itself fails because the invalid token is sent with the auth request. The backend curl API works fine without this token. To test the frontend end-to-end, either fix the hardcoded token or inject valid credentials into localStorage.
+- **Frontend tests broken**: axios v1.x uses ESM which CRA's Jest config doesn't support. `npm test` fails with `SyntaxError: Cannot use import statement outside a module`.
+
 ### Key files
 
-- `frontend/src/api/strapi.js` — Axios instance with auth interceptors; has a hardcoded API token that gets overridden by JWT after login.
+- `frontend/src/api/strapi.js` — Axios instance; hardcoded invalid API token breaks auth flow (see above).
 - `backend/.env.example` — Template for backend environment variables.
 - `frontend/.env` — Frontend env pointing to `http://localhost:1337`.
