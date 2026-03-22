@@ -40,23 +40,28 @@ export class CreateTransactionPage extends BasePage {
     await this.amountInput.fill(amount);
   }
 
-  /** Select the first bank account from the react-select dropdown. */
+  /** Wait for bank accounts to load, then select the first one. */
   async selectFirstBankAccount() {
-    const container = this.page.locator("#bank-account").locator("..").locator("..");
-    const control = container.locator(".react-select__control");
+    const group = this.page.locator('.form-group:has(label[for="bank-account"])');
+    const control = group.locator(".react-select__control");
+    // Wait for the dropdown to have a value-container populated by API data
+    await this.page.waitForTimeout(1_000);
     await control.click();
-    const option = container.locator(".react-select__option").first();
-    await option.waitFor({ state: "visible" });
+    const menu = group.locator(".react-select__menu");
+    await menu.waitFor({ state: "visible", timeout: 10_000 });
+    const option = menu.locator(".react-select__option").first();
     await option.click();
   }
 
-  /** Select the first category from the react-select dropdown. */
+  /** Wait for categories to load, then select the first one. */
   async selectFirstCategory() {
-    const container = this.page.locator("#category").locator("..").locator("..");
-    const control = container.locator(".react-select__control");
+    const group = this.page.locator('.form-group:has(label[for="category"])');
+    const control = group.locator(".react-select__control");
+    await this.page.waitForTimeout(500);
     await control.click();
-    const option = container.locator(".react-select__option").first();
-    await option.waitFor({ state: "visible" });
+    const menu = group.locator(".react-select__menu");
+    await menu.waitFor({ state: "visible", timeout: 10_000 });
+    const option = menu.locator(".react-select__option").first();
     await option.click();
   }
 

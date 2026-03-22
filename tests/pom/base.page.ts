@@ -25,16 +25,33 @@ export class BasePage {
   /** Wait for and return an Ionic toast message. */
   async getToastMessage(): Promise<string> {
     const toast = this.page.locator("ion-toast");
-    await toast.waitFor({ state: "visible", timeout: 5_000 });
-    const msg = await toast.getAttribute("message");
-    return msg ?? "";
+    await toast.waitFor({ state: "attached", timeout: 5_000 });
+    // Ionic sets the message as a JS property; read it via evaluate
+    const msg = await toast.evaluate(
+      (el: HTMLElement) => (el as any).message ?? el.getAttribute("message") ?? el.textContent ?? ""
+    );
+    return msg;
   }
 
-  /** Wait for a specific toast message text (contains). */
-  async expectToast(text: string) {
-    const toast = this.page.locator("ion-toast");
-    await toast.waitFor({ state: "visible", timeout: 5_000 });
-    await expect(toast).toHaveAttribute("message", new RegExp(text, "i"));
+  /** Wait for a specific toast message text (contains). Polls all toasts. */
+  async expectToast(text: string, timeoutMs = 10_000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const toasts = this.page.locator("ion-toast");
+      const count = await toasts.count();
+      for (let i = 0; i < count; i++) {
+        const msg: string = await toasts.nth(i).evaluate(
+          (el: HTMLElement) =>
+            (el as any).message ??
+            el.getAttribute("message") ??
+            el.textContent ??
+            ""
+        );
+        if (msg.toLowerCase().includes(text.toLowerCase())) return;
+      }
+      await this.page.waitForTimeout(300);
+    }
+    throw new Error(`Toast containing "${text}" not found within ${timeoutMs}ms`);
   }
 
   /** Get the page title from the IonToolbar. */

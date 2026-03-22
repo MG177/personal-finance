@@ -24,11 +24,13 @@ export default defineConfig({
   projects: [
     {
       name: "setup",
+      testDir: "./tests",
       testMatch: /global\.setup\.ts/,
       teardown: "cleanup",
     },
     {
       name: "cleanup",
+      testDir: "./tests",
       testMatch: /global\.teardown\.ts/,
     },
     {

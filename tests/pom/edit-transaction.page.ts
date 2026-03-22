@@ -11,12 +11,13 @@ export class EditTransactionPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.heading = page.locator("h1.form-title");
-    this.typeSelect = page.locator("#transaction-type");
-    this.titleInput = page.locator("#title");
-    this.amountInput = page.locator("#amount");
-    this.submitButton = page.locator('ion-button[type="submit"]');
-    this.backButton = page.locator("ion-back-button");
+    this.heading = page.getByRole("heading", { name: "Edit Transaction Details" });
+    // Use nth(-1) to target the last matching element (the active Ionic page)
+    this.typeSelect = page.locator("#transaction-type").last();
+    this.titleInput = page.locator("#title").last();
+    this.amountInput = page.locator("#amount").last();
+    this.submitButton = page.locator('ion-button[type="submit"]').last();
+    this.backButton = page.locator("ion-back-button").last();
   }
 
   async expectVisible() {
