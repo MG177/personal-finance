@@ -302,7 +302,7 @@ const Dashboard = () => {
         <IonToolbar>
           <IonTitle>Dashboard</IonTitle>
           <IonButtons slot="end">
-            <IonButton onClick={handleLogout}>
+            <IonButton onClick={handleLogout} data-testid="logout-button">
               Logout
             </IonButton>
           </IonButtons>
@@ -474,6 +474,7 @@ const Dashboard = () => {
                                   fill="clear"
                                   onClick={() => handleEdit(transaction)}
                                   className="action-button"
+                                  data-testid="edit-transaction"
                                 >
                                   <IonIcon slot="icon-only" icon={createOutline} />
                                 </IonButton>
@@ -481,6 +482,7 @@ const Dashboard = () => {
                                   fill="clear"
                                   onClick={() => handleDeleteClick(transaction)}
                                   className="action-button"
+                                  data-testid="delete-transaction"
                                 >
                                   <IonIcon slot="icon-only" icon={trashOutline} />
                                 </IonButton>
@@ -497,7 +499,7 @@ const Dashboard = () => {
 
         {/* Floating Action Button */}
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton routerLink="/create-transaction">
+          <IonFabButton routerLink="/create-transaction" data-testid="create-transaction-fab">
             <IonIcon icon={addOutline} />
           </IonFabButton>
         </IonFab>
